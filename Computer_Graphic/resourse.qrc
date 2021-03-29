@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/png">
+        <file>arrow_298px_1199168_easyicon.net.png</file>
+        <file>design_276px_1199315_easyicon.net.png</file>
+        <file>design_280px_1199322_easyicon.net.png</file>
+        <file>design_298px_1199292_easyicon.net.png</file>
+        <file>ellipse_stroked.png</file>
+        <file>zoom9.png</file>
+        <file>zoom12.png</file>
+        <file>paint.png</file>
+        <file>paint_bucket.png</file>
+        <file>eraser11.png</file>
+        <file>rotate.png</file>
+        <file>rotate2.png</file>
+        <file>palette.png</file>
+        <file>trash37.png</file>
+        <file>undo9.png</file>
+        <file>upright1.png</file>
+        <file>draw_wave.png</file>
+        <file>polygom.png</file>
+        <file>crop.png</file>
+        <file>favicon.ico</file>
+        <file>invert.png</file>
+        <file>switch.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>trash37.png</file>
+        <file>favicon.ico</file>
+    </qresource>
+</RCC>

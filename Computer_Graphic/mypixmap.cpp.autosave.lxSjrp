@@ -1,0 +1,186 @@
+#include "shape.h"
+#include <QGraphicsScene>
+#include <QGraphicsView>
+
+Mypixmap::Mypixmap(QPixmap x,QPointF s,QPointF e):
+    QGraphicsPixmapItem(x){
+    //setMouseTracking(true);
+    name = "rect";
+    If_br_resizing = false;
+    If_bl_resizing = false;
+    If_bc_resizing = false;
+    If_lc_resizing = false;
+    If_rc_resizing = false;
+    If_tc_resizing = false;
+    If_tl_resizing = false;
+    If_tr_resizing = false;
+    If_rotating = false;
+    
+    start = s;
+    end = e;
+    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
+}
+
+/*void Mypixmap::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget){
+    QStyleOptionGraphicsItem op;
+    op.initFrom(widget);
+
+    if(option->state & QStyle::State_Selected)
+        op.state = QStyle::State_None;
+
+    QGraphicsPixmapItem::paint(painter,&op,widget);
+
+    if(option->state & QStyle::State_Selected){
+        //qreal itemPenWidth = pen().widthF();
+        const qreal pad = 1;
+        const qreal penWidth = 2;
+
+        QColor color = QColor(Qt::red);
+
+        painter->setPen(QPen(color,penWidth,Qt::DashLine));
+        painter->drawRect(getRect());
+
+        top_left = getRect().topLeft();
+        top_right = getRect().topRight();
+        top_center = QPointF((top_left.x()+top_right.x())/2 , top_left.y());
+        bottom_left = getRect().bottomLeft();
+        bottom_right = getRect().bottomRight();
+        left_center = QPointF(top_left.x(),(top_left.y() + bottom_left.y())/2);
+        right_center = QPointF(top_right.x(),(top_right.y() + bottom_right.y())/2);
+        bottom_center = QPointF((bottom_left.x() + bottom_right.x())/2, bottom_left.y());
+        center = QPointF((top_left.x() + top_right.x())/2, (top_left.y() + bottom_left.y())/2);
+
+        qDebug()<<top_left<< bottom_right;
+
+        painter->setPen(Qt::black);
+        painter->setBrush(Qt::NoBrush);
+        painter->drawEllipse(QRectF(top_left.x() - SMALL_CIRCLE_R, top_left.y() - SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R));
+        painter->drawEllipse(QRectF(top_right.x() - SMALL_CIRCLE_R, top_right.y() - SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R));
+        painter->drawEllipse(QRectF(top_center.x() - SMALL_CIRCLE_R, top_center.y() - SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R));
+        painter->drawEllipse(QRectF(left_center.x() - SMALL_CIRCLE_R, left_center.y() - SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R));
+        painter->drawEllipse(QRectF(bottom_left.x() - SMALL_CIRCLE_R, bottom_left.y() - SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R));
+        painter->drawEllipse(QRectF(bottom_right.x() - SMALL_CIRCLE_R, bottom_right.y() - SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R));
+        painter->drawEllipse(QRectF(bottom_center.x() - SMALL_CIRCLE_R, bottom_center.y() - SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R));
+        painter->drawEllipse(QRectF(right_center.x() - SMALL_CIRCLE_R, right_center.y() - SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R));
+        painter->drawEllipse(QRectF(center.x() - SMALL_CIRCLE_R, top_left.y() + 15 - SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R, 2*SMALL_CIRCLE_R));
+
+    }
+}*/
+
+void Mypixmap::mousePressEvent(QGraphicsSceneMouseEvent *event){
+    setAcceptHoverEvents(true);
+    this->scene()->views().at(0)->setMouseTracking(false);                  //不接受鼠标移动消息
+    if(event->button() == Qt::LeftButton){
+        if(event->modifiers() == Qt::ShiftModifier){
+            setSelected(true);
+        }
+        else if(sqrt(pow(event->pos().x() - getRect().bottomRight().x(), 2) + pow(event->pos().y() - getRect().bottomRight().y(), 2)) < 10){
+            If_br_resizing = true;
+        }
+        else if(sqrt(pow(event->pos().x() - getRect().bottomLeft().x(), 2) + pow(event->pos().y() - getRect().bottomLeft().y(), 2)) < 10){
+            If_bl_resizing = true;
+        }
+        else if(sqrt(pow(event->pos().x() - (getRect().bottomLeft().x() + getRect().bottomRight().x())/2, 2) + pow(event->pos().y() - getRect().bottomLeft().y(), 2)) < 10){
+            If_bc_resizing = true;
+        }
+        else if(sqrt(pow(event->pos().x() - getRect().topRight().x(), 2) + pow(event->pos().y() - getRect().topRight().y(), 2)) < 10){
+            If_tr_resizing = true;
+        }
+        else if(sqrt(pow(event->pos().x() - getRect().topLeft().x(), 2) + pow(event->pos().y() - getRect().topLeft().y(), 2)) < 10){
+            If_tl_resizing = true;
+        }
+        else if(sqrt(pow(event->pos().x() - (getRect().topRight().x() + getRect().topLeft().x())/2, 2) + pow(event->pos().y() - getRect().topLeft().y(), 2)) < 10){
+            If_tc_resizing = true;
+        }
+        else if(sqrt(pow(event->pos().x() - getRect().bottomLeft().x(), 2) + pow(event->pos().y() - (getRect().bottomLeft().y() + getRect().topLeft().y())/2, 2)) < 10){
+            If_lc_resizing = true;
+        }
+        else if(sqrt(pow(event->pos().x() - getRect().bottomRight().x(), 2) + pow(event->pos().y() - (getRect().bottomRight().y() + getRect().topRight().y())/2, 2)) < 10){
+            If_rc_resizing = true;
+        }
+        else if(sqrt(pow(event->pos().x() - (getRect().topRight().x() + getRect().topLeft().x())/2, 2) + pow(event->pos().y() - (getRect().topRight().y() + 15), 2))< 10){
+            If_rotating = true;
+        }
+        else{
+            QGraphicsItem::mousePressEvent(event);
+            event->accept();
+        }
+    }
+}
+
+void Mypixmap::hoverMoveEvent(QGraphicsSceneHoverEvent *event){
+    if((sqrt(pow(event->pos().x() - getRect().bottomRight().x(), 2) + pow(event->pos().y() - getRect().bottomRight().y(), 2)) < 10 && getRect().contains(event->pos()) && isSelected()) ||
+            (sqrt(pow(event->pos().x() - getRect().topLeft().x(), 2) + pow(event->pos().y() - getRect().topLeft().y(), 2)) < 10 && getRect().contains(event->pos())&&isSelected()))
+        this->scene()->views().at(0)->setCursor(Qt::SizeFDiagCursor);
+    else if((sqrt(pow(event->pos().x() - getRect().bottomLeft().x(), 2) + pow(event->pos().y() - getRect().bottomLeft().y(), 2)) < 10 && getRect().contains(event->pos())&& isSelected()) ||
+            (sqrt(pow(event->pos().x() - getRect().topRight().x(), 2) + pow(event->pos().y() - getRect().topRight().y(), 2)) < 10 && getRect().contains(event->pos())&& isSelected()))
+        this->scene()->views().at(0)->setCursor(Qt::SizeBDiagCursor);
+    else if(sqrt(pow(event->pos().x() - center.x(), 2) + pow(event->pos().y() - top_center.y() - 15, 2)) < 10 && getRect().contains(event->pos())&& isSelected())
+        this->scene()->views().at(0)->setCursor(Qt::CrossCursor);
+    else
+        this->scene()->views().at(0)->setCursor(Qt::ArrowCursor);
+}
+
+qreal Mypixmap::resizing_factor(qreal t,qreal l){
+    m_resizing = t/l;
+    return t/l;
+}
+
+void Mypixmap::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
+    if(If_br_resizing){
+            qreal l = getRect().bottomRight().x() - bottom_left.x();
+            setTransformOriginPoint(getRect().topLeft());
+            setScale(resizing_factor(event->scenePos().x() - bottom_left.x(),l));
+        }
+        else if(If_bl_resizing){
+            qreal l = getRect().bottomLeft().x() - bottom_right.x();
+            setTransformOriginPoint(getRect().topRight());
+            setScale(resizing_factor(event->scenePos().x() - bottom_right.x(),l));
+        }
+        else if(If_tl_resizing){
+            qreal l = getRect().topLeft().x() - top_right.x();
+            setTransformOriginPoint(getRect().bottomRight());
+            setScale(resizing_factor(event->scenePos().x() - top_right.x(),l));
+        }
+        else if(If_tr_resizing){
+            qreal l = getRect().bottomRight().x() - top_left.x();
+            setTransformOriginPoint(getRect().bottomLeft());
+            setScale(resizing_factor(event->scenePos().x() - top_left.x(),l));
+        }
+    else{
+        QGraphicsItem::mouseMoveEvent(event);
+    }
+}
+
+void Mypixmap::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
+        if(If_br_resizing)
+            If_br_resizing = false;
+        else if(If_bl_resizing)
+            If_bl_resizing = false;
+        else if(If_tr_resizing)
+            If_tr_resizing = false;
+        else if(If_tl_resizing)
+            If_tl_resizing = false;
+        else
+            QGraphicsItem::mouseReleaseEvent(event);
+    this->scene()->views().at(0)->setMouseTracking(true);
+}
+
+void Mypixmap::startDraw(QGraphicsSceneMouseEvent* event){
+    //polygon<<start;
+}
+
+void Mypixmap::drawing(QGraphicsSceneMouseEvent* event){
+    //setPolygon(getpolygon());
+}
+
+void Mypixmap::wheelEvent(QWheelEvent* event){
+    qreal zoomInFactor = 1.25;
+    qreal zoomOutFactor = 1 / zoomInFactor;
+    qreal zoomFactor;
+    if (event->angleDelta().y() > 0)
+          zoomFactor = zoomInFactor;
+    else
+          zoomFactor = zoomOutFactor;
+    setScale(zoomFactor);
+}
